@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Từ vựng HSA 1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#12301f;
+    --ink-soft:#3f5548;
+    --paper:#eef3ec;
+    --card:#ffffff;
+    --amber:#c8871a;
+    --amber-deep:#a86e10;
+    --good:#1f7a4d;
+    --good-bg:#e3f3e8;
+    --bad:#b23b2e;
+    --bad-bg:#fbe7e3;
+    --line: rgba(18,48,31,0.16);
+    --serif: 'Fraunces', Georgia, serif;
+    --sans: 'Inter', system-ui, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--sans);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    padding:32px 16px 64px;
+    line-height:1.5;
+  }
+  body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    background-image: linear-gradient(var(--line) 1px, transparent 1px);
+    background-size: 100% 120px;
+    opacity:0.35;
+    z-index:0;
+  }
+  .wrap{ position:relative; z-index:1; width:100%; max-width:620px; }
+  header.top{
+    display:flex; align-items:baseline; justify-content:space-between;
+    margin-bottom:22px; gap:12px;
+  }
+  header.top h1{
+    font-family:var(--serif); font-size:21px; font-weight:600; margin:0; letter-spacing:-0.01em;
+  }
+  header.top .tag{ font-size:13px; color:var(--ink-soft); white-space:nowrap; }
+  .progress-track{
+    height:6px; background:rgba(18,48,31,0.12); border-radius:3px; overflow:hidden; margin-bottom:36px;
+  }
+  .progress-fill{ height:100%; background:var(--amber); width:0%; transition:width .35s ease; }
+
+  .card{ background:var(--card); border:2px solid var(--ink); border-radius:6px; padding:32px 28px; }
+  .qmeta{ display:flex; justify-content:space-between; align-items:center; font-size:13px; color:var(--ink-soft); margin-bottom:18px; }
+  .prompt-label{ font-size:13px; color:var(--ink-soft); margin-bottom:6px; }
+  .term{ font-family:var(--serif); font-size:26px; font-weight:700; line-height:1.25; margin:0 0 6px; }
+  .ipa{ font-size:15px; color:var(--amber-deep); margin:0 0 26px; font-weight:500; min-height:8px; }
+
+  .choices{ display:flex; flex-direction:column; gap:10px; }
+  .choice-btn{
+    text-align:left; background:var(--card); border:1.5px solid var(--ink); border-radius:5px;
+    padding:13px 16px; font-family:var(--sans); font-size:15px; color:var(--ink); cursor:pointer;
+    transition:background .15s ease;
+  }
+  .choice-btn:hover:not(:disabled){ background:#f1ede1; }
+  .choice-btn:disabled{ cursor:default; }
+  .choice-btn.correct{ background:var(--good-bg); border-color:var(--good); color:var(--good); font-weight:600; }
+  .choice-btn.wrong{ background:var(--bad-bg); border-color:var(--bad); color:var(--bad); font-weight:600; }
+
+  .feedback{ margin-top:20px; padding-top:18px; border-top:1px dashed var(--line); display:none; }
+  .feedback.show{ display:block; }
+  .fb-verdict{ font-weight:700; font-size:15px; margin-bottom:8px; }
+  .fb-verdict.good{ color:var(--good); }
+  .fb-verdict.bad{ color:var(--bad); }
+  .fb-meaning{ font-size:15px; }
+  .fb-example{ font-size:14px; color:var(--ink-soft); font-style:italic; margin-top:6px; }
+  .next-btn{
+    margin-top:20px; width:100%; font-family:var(--sans); font-weight:700; font-size:15px;
+    padding:13px; background:var(--amber); color:#2a1c02; border:none; border-radius:5px; cursor:pointer;
+  }
+  .next-btn:hover{ background:var(--amber-deep); color:#fff; }
+
+  .results h2{ font-family:var(--serif); font-size:28px; margin:0 0 6px; }
+  .score-big{ font-family:var(--serif); font-size:56px; font-weight:700; color:var(--amber-deep); margin:14px 0 4px; }
+  .score-sub{ color:var(--ink-soft); font-size:14px; margin-bottom:26px; }
+  .review-list{ list-style:none; padding:0; margin:0 0 24px; display:flex; flex-direction:column; gap:10px; }
+  .review-list li{ border-left:3px solid var(--bad); padding:8px 14px; background:var(--bad-bg); border-radius:0 4px 4px 0; font-size:14px; }
+  .review-list li b{ font-family:var(--serif); font-size:15px; }
+  .no-wrong{ font-size:14px; color:var(--good); margin-bottom:24px; }
+  .restart-btn{
+    width:100%; font-family:var(--sans); font-weight:700; font-size:15px; padding:14px;
+    background:var(--ink); color:var(--paper); border:none; border-radius:5px; cursor:pointer;
+  }
+
+  @media (max-width:480px){
+    .card{ padding:24px 18px; }
+    .term{ font-size:22px; }
+    .score-big{ font-size:44px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1>Từ vựng HSA 1</h1>
+    <span class="tag" id="counterTag">1 / 64</span>
+  </header>
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  <div class="card" id="quizCard"></div>
+</div>
+
+<script>
+// g: w = từ/cụm từ, s = cấu trúc/ngữ pháp, i = thành ngữ
+const VOCAB = [
+{"g":"w","term":"illegible","ipa":"/ɪˈledʒəbl/","meaning":"không đọc được (chữ viết)","example":"His handwriting is so illegible that nobody can read his notes."},
+{"g":"w","term":"ward","ipa":"/wɔːrd/","meaning":"khu điều trị, phòng bệnh","example":"She works in the children's ward of the hospital."},
+{"g":"w","term":"be reserved for","ipa":"/biː rɪˈzɜːrvd fɔːr/","meaning":"được dành riêng cho","example":"These seats are reserved for elderly passengers."},
+{"g":"w","term":"terminally ill","ipa":"/ˈtɜːrmɪnəli ɪl/","meaning":"bệnh giai đoạn cuối","example":"The charity supports terminally ill patients and their families."},
+{"g":"w","term":"outcry against","ipa":"/ˈaʊtkraɪ əˈɡenst/","meaning":"sự phản đối mạnh mẽ","example":"There was a public outcry against the new tax."},
+{"g":"w","term":"garner attention from","ipa":"/ˈɡɑːrnər əˈtenʃn frʌm/","meaning":"nhận được sự chú ý từ","example":"The campaign garnered attention from the national media."},
+{"g":"w","term":"the power goes out","ipa":"/ðə ˈpaʊər ɡoʊz aʊt/","meaning":"mất điện","example":"The power went out during the storm last night."},
+{"g":"w","term":"appalling","ipa":"/əˈpɔːlɪŋ/","meaning":"kinh khủng (= dreadful)","example":"The living conditions in the camp were appalling."},
+{"g":"w","term":"see eye to eye on","ipa":"/siː aɪ tuː aɪ ɑːn/","meaning":"hoàn toàn đồng ý về","example":"The two leaders don't see eye to eye on climate policy."},
+{"g":"w","term":"circumvent","ipa":"/ˌsɜːrkəmˈvent/","meaning":"lách (luật, quy định)","example":"Some companies try to circumvent safety regulations."},
+{"g":"w","term":"loophole","ipa":"/ˈluːphoʊl/","meaning":"kẽ hở (trong luật)","example":"The lawyer found a loophole in the contract."},
+{"g":"w","term":"beyond belief","ipa":"/bɪˈjɑːnd bɪˈliːf/","meaning":"không thể tin nổi","example":"His generosity was beyond belief."},
+{"g":"w","term":"believable","ipa":"/bɪˈliːvəbl/","meaning":"đáng tin","example":"The actor gave a very believable performance."},
+{"g":"w","term":"credible","ipa":"/ˈkredəbl/","meaning":"đáng tin cậy","example":"She is a credible witness in the case."},
+{"g":"w","term":"plausible","ipa":"/ˈplɔːzəbl/","meaning":"có vẻ hợp lý, có thể xảy ra","example":"His explanation sounded plausible, but it wasn't true."},
+{"g":"w","term":"handicapped people","ipa":"/ˈhændikæpt ˈpiːpl/","meaning":"người khuyết tật","example":"The new building has ramps for handicapped people."},
+{"g":"w","term":"be devoted to V-ing","ipa":"/biː dɪˈvoʊtɪd tuː/","meaning":"tận tâm với việc gì","example":"She is devoted to helping homeless children."},
+{"g":"w","term":"put sth at sb's disposal","ipa":"/pʊt ˈsʌmθɪŋ æt ˈsʌmbədiz dɪˈspoʊzl/","meaning":"cho ai toàn quyền sử dụng","example":"He put his car at our disposal during the trip."},
+{"g":"w","term":"reluctantly","ipa":"/rɪˈlʌktəntli/","meaning":"miễn cưỡng","example":"She reluctantly agreed to join the meeting."},
+{"g":"w","term":"unanimous","ipa":"/juˈnænɪməs/","meaning":"nhất trí, đồng lòng","example":"The committee reached a unanimous decision."},
+{"g":"w","term":"approval","ipa":"/əˈpruːvl/","meaning":"sự chấp thuận","example":"The plan needs the approval of the board."},
+{"g":"w","term":"out of the blue","ipa":"/aʊt əv ðə bluː/","meaning":"hoàn toàn bất ngờ (= unexpected)","example":"He called me out of the blue after ten years."},
+{"g":"w","term":"be in favour of","ipa":"/biː ɪn ˈfeɪvər əv/","meaning":"ủng hộ","example":"Most residents are in favour of the new park."},
+{"g":"w","term":"frown","ipa":"/fraʊn/","meaning":"nhăn mặt, cau mày","example":"The teacher frowned when he saw the messy homework."},
+{"g":"w","term":"put forward","ipa":"/pʊt ˈfɔːrwərd/","meaning":"đề xuất (= propose)","example":"She put forward a new idea at the meeting."},
+{"g":"w","term":"I couldn't care less","ipa":"/aɪ ˈkʊdnt ker les/","meaning":"tớ chẳng quan tâm (= I don't care)","example":"\"Who won the match?\" \"I couldn't care less.\""},
+{"g":"w","term":"realtor","ipa":"/ˈriːəltər/","meaning":"nhà môi giới bất động sản","example":"The realtor showed us three apartments today."},
+{"g":"w","term":"Forbidden City","ipa":"/fərˈbɪdn ˈsɪti/","meaning":"Tử Cấm Thành","example":"We visited the Forbidden City in Beijing."},
+{"g":"w","term":"get its name","ipa":"","meaning":"có tên gọi","example":"The street got its name from the old market nearby."},
+{"g":"w","term":"conform (rigidly) to","ipa":"/kənˈfɔːrm ˈrɪdʒɪdli tuː/","meaning":"tuân theo (= adhere to, obey)","example":"All students must conform to the school rules."},
+{"g":"s","term":"N (người) + who + V","ipa":"","meaning":"mệnh đề quan hệ bổ nghĩa cho người","example":"The elderly who are pet owners often feel less lonely."},
+{"g":"s","term":"V-ing (rút gọn mệnh đề)","ipa":"","meaning":"rút gọn mệnh đề chủ động bằng V-ing","example":"Standing here, looking out at the sea, I feel calm."},
+{"g":"s","term":"must have + V3","ipa":"","meaning":"phỏng đoán chắc chắn về quá khứ","example":"This note must have been written long ago."},
+{"g":"s","term":"should / might / could have + V3","ipa":"","meaning":"lẽ ra đã / có thể đã (mức chắc chắn thấp hơn must have)","example":"You should have told me earlier; it might have saved us time."},
+{"g":"s","term":"Not only + trợ động từ + S + V, but ... also","ipa":"","meaning":"đảo ngữ nhấn mạnh \"không những... mà còn\"","example":"Not only did she win the race, but she also set a new record."},
+{"g":"s","term":"will be + V3","ipa":"","meaning":"bị động ở thì tương lai","example":"Dinner will be served presently."},
+{"g":"s","term":"If + had + V3, S + would + V","ipa":"","meaning":"câu điều kiện hỗn hợp loại 3-2","example":"If I hadn't tried to sleep, I wouldn't be late now."},
+{"g":"s","term":"so + adj + that","ipa":"","meaning":"quá... đến nỗi mà","example":"The campaign was so effective that it garnered national attention."},
+{"g":"s","term":"as long as","ipa":"","meaning":"miễn là, với điều kiện là","example":"You can borrow my book as long as you return it tomorrow."},
+{"g":"s","term":"whether ... or ...","ipa":"","meaning":"dù là... hay là...","example":"Whether you want a sedan, a sports model, or a truck, we have it."},
+{"g":"s","term":"be barred from V-ing","ipa":"","meaning":"bị cấm, bị ngăn không cho làm gì","example":"Visitors were barred from entering the palace hall."},
+{"g":"s","term":"be permitted + N","ipa":"","meaning":"được cho phép có/tiếp cận cái gì (bị động)","example":"Tourists were permitted only limited access to the site."},
+{"g":"s","term":"not only A but also B","ipa":"","meaning":"không chỉ A mà còn B (cấu trúc song song)","example":"The building is known not only by its height but also by its roof."},
+{"g":"s","term":"arrange sth to V","ipa":"","meaning":"sắp xếp cái gì để làm gì (chỉ mục đích)","example":"They arranged the buildings to impress visitors."},
+{"g":"s","term":"be determined by","ipa":"","meaning":"được quyết định bởi","example":"The price is determined by supply and demand."},
+{"g":"s","term":"in recognition of","ipa":"","meaning":"để ghi nhận, công nhận","example":"He received an award in recognition of his service."},
+{"g":"s","term":"instead of + N","ipa":"","meaning":"thay vì","example":"Instead of rigid formality, the school encourages creativity."},
+{"g":"s","term":"add A to B","ipa":"","meaning":"thêm A vào B","example":"UNESCO added the palace to its World Heritage List."},
+{"g":"w","term":"come under fire","ipa":"/kʌm ˈʌndər faɪər/","meaning":"bị chỉ trích dữ dội","example":"The company came under fire for polluting the river."},
+{"g":"w","term":"be acclaimed","ipa":"/biː əˈkleɪmd/","meaning":"được hoan nghênh, ca ngợi","example":"The film was widely acclaimed by critics."},
+{"g":"w","term":"dramatically alter","ipa":"/drəˈmætɪkli ˈɔːltər/","meaning":"thay đổi đáng kể","example":"The internet has dramatically altered the way we work."},
+{"g":"w","term":"irrepressible","ipa":"/ˌɪrɪˈpresəbl/","meaning":"không thể kìm nén","example":"The children's irrepressible laughter filled the room."},
+{"g":"w","term":"vicious circle","ipa":"/ˈvɪʃəs ˈsɜːrkl/","meaning":"vòng luẩn quẩn","example":"Poverty and poor health can create a vicious circle."},
+{"g":"w","term":"deprive sb of sth","ipa":"/dɪˈpraɪv ˈsʌmbədi əv ˈsʌmθɪŋ/","meaning":"tước đi cái gì của ai","example":"Lack of sleep deprived him of the ability to focus."},
+{"g":"w","term":"unparalleled","ipa":"/ʌnˈpærəleld/","meaning":"vô song, không gì sánh bằng","example":"The city offers unparalleled views of the mountains."},
+{"g":"w","term":"majestic","ipa":"/məˈdʒestɪk/","meaning":"hùng vĩ, uy nghi","example":"We admired the majestic mountains at sunrise."},
+{"g":"w","term":"spontaneous","ipa":"/spɑːnˈteɪniəs/","meaning":"tự nhiên, ngẫu hứng","example":"They took a spontaneous trip to the coast."},
+{"g":"w","term":"impress sb with sth","ipa":"/ɪmˈpres ˈsʌmbədi wɪð ˈsʌmθɪŋ/","meaning":"gây ấn tượng với ai bằng cái gì","example":"She impressed the interviewers with her confidence."},
+{"g":"w","term":"foot traffic","ipa":"/fʊt ˈtræfɪk/","meaning":"lượng người đi bộ qua lại","example":"The shop is busy because of heavy foot traffic."},
+{"g":"i","term":"Every cloud has a silver lining","ipa":"","meaning":"trong cái rủi có cái may","example":"I lost my job, but I found a better one — every cloud has a silver lining."},
+{"g":"i","term":"You can't have your cake and eat it too","ipa":"","meaning":"không thể có cả đôi đường, được cái này mất cái kia","example":"You want a high salary and free time? You can't have your cake and eat it too."},
+{"g":"i","term":"Actions speak louder than words","ipa":"","meaning":"hành động có giá trị hơn lời nói","example":"He promised a lot, but actions speak louder than words."},
+{"g":"i","term":"Burn the midnight oil","ipa":"","meaning":"thức khuya làm việc/học bài","example":"She burned the midnight oil to finish her thesis."},
+{"g":"w","term":"get together with","ipa":"/ɡet təˈɡeðər wɪð/","meaning":"gặp gỡ, sum họp với ai","example":"We get together with our cousins every Tet holiday."}
+];
+
+const LABELS = {
+  w: "Từ / cụm từ này có nghĩa là gì?",
+  s: "Cấu trúc này có nghĩa / chức năng gì?",
+  i: "Câu thành ngữ này có nghĩa là gì?"
+};
+
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+function esc(s){
+  return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+let order = [];
+let current = 0;
+let score = 0;
+let wrongItems = [];
+let answered = false;
+
+function startQuiz(){
+  order = shuffle(VOCAB);
+  current = 0;
+  score = 0;
+  wrongItems = [];
+  renderQuestion();
+}
+
+// Ưu tiên đáp án nhiễu cùng nhóm (từ / cấu trúc / thành ngữ) để câu hỏi hợp lý hơn
+function buildChoices(correctItem){
+  const others = VOCAB.filter(v=>v.meaning!==correctItem.meaning);
+  const same = shuffle(others.filter(v=>v.g===correctItem.g));
+  const diff = shuffle(others.filter(v=>v.g!==correctItem.g));
+  const distractors = same.concat(diff).slice(0,3).map(v=>v.meaning);
+  return shuffle([correctItem.meaning, ...distractors]);
+}
+
+function renderQuestion(){
+  answered = false;
+  const total = order.length;
+  document.getElementById('counterTag').textContent = (current+1)+" / "+total;
+  document.getElementById('progressFill').style.width = ((current)/total*100)+"%";
+
+  const item = order[current];
+  const card = document.getElementById('quizCard');
+
+  let bodyHtml = `
+    <div class="qmeta"><span>Câu ${current+1} / ${total}</span></div>
+    <div class="prompt-label">${LABELS[item.g]}</div>
+    <div class="term">${esc(item.term)}</div>
+    <div class="ipa">${esc(item.ipa)}</div>
+    <div class="choices" id="choicesBox">
+  `;
+  buildChoices(item).forEach(c=>{
+    bodyHtml += `<button class="choice-btn" data-answer="${encodeURIComponent(c)}" onclick="handleChoice(this)">${esc(c)}</button>`;
+  });
+  bodyHtml += `</div><div class="feedback" id="feedbackBox"></div>`;
+
+  card.innerHTML = bodyHtml;
+}
+
+function showFeedback(isCorrect, item){
+  const fb = document.getElementById('feedbackBox');
+  fb.classList.add('show');
+  fb.innerHTML = `
+    <div class="fb-verdict ${isCorrect?'good':'bad'}">${isCorrect ? 'Chính xác!' : 'Chưa đúng.'}</div>
+    <div class="fb-meaning">Nghĩa đúng: <strong>${esc(item.meaning)}</strong></div>
+    <div class="fb-example">Ví dụ: ${esc(item.example)}</div>
+  `;
+  const btn = document.createElement('button');
+  btn.className = 'next-btn';
+  btn.textContent = (current === order.length-1) ? 'Xem kết quả' : 'Câu tiếp theo';
+  btn.onclick = goNext;
+  fb.appendChild(btn);
+}
+
+function handleChoice(btn){
+  if(answered) return;
+  answered = true;
+  const item = order[current];
+  const chosen = decodeURIComponent(btn.getAttribute('data-answer'));
+  const isCorrect = chosen === item.meaning;
+
+  document.querySelectorAll('.choice-btn').forEach(b=>{
+    b.disabled = true;
+    const val = decodeURIComponent(b.getAttribute('data-answer'));
+    if(val === item.meaning) b.classList.add('correct');
+    else if(b===btn) b.classList.add('wrong');
+  });
+
+  if(isCorrect) score++;
+  else wrongItems.push(item);
+
+  showFeedback(isCorrect, item);
+}
+
+function goNext(){
+  if(current === order.length-1){
+    renderResults();
+  } else {
+    current++;
+    renderQuestion();
+  }
+}
+
+function renderResults(){
+  document.getElementById('progressFill').style.width = "100%";
+  document.getElementById('counterTag').textContent = order.length+" / "+order.length;
+  const total = order.length;
+  const pct = Math.round(score/total*100);
+
+  let html = `
+    <div class="results">
+      <h2>Hoàn thành!</h2>
+      <div class="score-big">${score}/${total}</div>
+      <div class="score-sub">Bạn đã trả lời đúng ${pct}% số câu hỏi.</div>
+  `;
+
+  if(wrongItems.length === 0){
+    html += `<div class="no-wrong">Xuất sắc! Không có câu nào sai.</div>`;
+  } else {
+    html += `<ul class="review-list">`;
+    wrongItems.forEach(item=>{
+      html += `<li><b>${esc(item.term)}</b> — ${esc(item.meaning)}</li>`;
+    });
+    html += `</ul>`;
+  }
+
+  html += `<button class="restart-btn" onclick="startQuiz()">Làm lại từ đầu</button></div>`;
+
+  document.getElementById('quizCard').innerHTML = html;
+}
+
+startQuiz();
+</script>
+</body>
+</html>
